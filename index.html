@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Dementia Patient Monitoring System</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    header { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 25px; }
+    h1 { color: #333; font-size: 28px; margin-bottom: 10px; }
+    .info-box { background: #e0e7ff; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #667eea; }
+    .code-section { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 20px; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 15px 0; }
+    code { font-family: 'Courier New', monospace; font-size: 14px; }
+    .file-header { background: #334155; color: white; padding: 10px 20px; border-radius: 8px 8px 0 0; font-weight: bold; margin-top: 20px; }
+    h2 { color: #333; margin: 20px 0 10px 0; }
+    h3 { color: #667eea; margin: 15px 0 10px 0; }
+    ol, ul { margin-left: 20px; line-height: 2; color: #555; }
+    .demo { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin: 20px 0; }
+    .demo h3 { color: white; }
+    .btn { display: inline-block; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 10px 10px 10px 0; font-weight: bold; }
+    .btn:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🏥 AI-Assisted Monitoring System for Dementia Patients</h1>
+      <p style="color: #666; margin-top: 10px;">Real-time IoT monitoring with AI-powered anomaly detection</p>
+    </header>
+
+    <div class="info-box">
+      <h3>📋 Project Overview</h3>
+      <p>This is a comprehensive IoT-based monitoring system designed for dementia patient care facilities. It simulates real-time sensor data and uses AI-powered anomaly detection to alert caregivers of potential health issues.</p>
+    </div>
+
+    <div class="demo">
+      <h3>✨ Key Features</h3>
+      <ul style="color: white; opacity: 0.95;">
+        <li><strong>Real-Time Patient Monitoring:</strong> Live vital signs tracking (heart rate, temperature, movement)</li>
+        <li><strong>AI-Powered Anomaly Detection:</strong> Automatic detection of abnormal vital signs, night wandering, poor sleep quality</li>
+        <li><strong>WebSocket Live Updates:</strong> Real-time data streaming every 3 seconds</li>
+        <li><strong>Alert System:</strong> Color-coded severity levels with acknowledgment</li>
+        <li><strong>IoT Data Simulation:</strong> Realistic sensor data with periodic anomaly injection</li>
+      </ul>
+    </div>
+
+    <div class="code-section">
+      <h2>🚀 Quick Start Guide</h2>
+      <ol>
+        <li><strong>Create project directory:</strong> <code style="background: #f3f4f6; padding: 2px 8px; border-radius: 4px;">mkdir dementia-monitoring && cd dementia-monitoring</code></li>
+        <li><strong>Copy the code files below</strong> into your project directory</li>
+        <li><strong>Install dependencies:</strong> <code style="background: #f3f4f6; padding: 2px 8px; border-radius: 4px;">npm install express ws</code></li>
+        <li><strong>Run the server:</strong> <code style="background: #f3f4f6; padding: 2px 8px; border-radius: 4px;">node server.js</code></li>
+        <li><strong>Open browser:</strong> Navigate to <code style="background: #f3f4f6; padding: 2px 8px; border-radius: 4px;">http://localhost:3000</code></li>
+      </ol>
+    </div>
+
+    <div class="code-section">
+      <h2>📁 Project Files</h2>
+      
+      <div class="file-header">📄 package.json</div>
+      <pre><code>{
+  "name": "dementia-monitoring-system",
+  "version": "1.0.0",
+  "description": "AI-Assisted Monitoring System for Dementia Patients",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.14.2"
+  }
+}</code></pre>
+
+      <div class="file-header">📄 server.js</div>
+      <pre><code>const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+app.use(express.json());
+app.use(express.static('public'));
+
+let patients = [
+  { id: 1, name: 'John Doe', age: 78, room: '101', status: 'normal' },
+  { id: 2, name: 'Jane Smith', age: 82, room: '102', status: 'normal' },
+  { id: 3, name: 'Robert Johnson', age: 75, room: '103', status: 'normal' }
+];
+
+let alerts = [];
+let sensorData = [];
+
+class AnomalyDetector {
+  detect(data) {
+    const anomalies = [];
+    if (data.heartRate < 50) anomalies.push({ type: 'LOW_HEART_RATE', severity: 'high', message: 'Heart rate below normal' });
+    if (data.heartRate > 100) anomalies.push({ type: 'HIGH_HEART_RATE', severity: 'high', message: 'Heart rate above normal' });
+    if (data.temperature > 37.5) anomalies.push({ type: 'HIGH_TEMPERATURE', severity: 'high', message: 'Fever detected' });
+    if (data.movement > 80 && new Date().getHours() >= 22) anomalies.push({ type: 'NIGHT_WANDERING', severity: 'high', message: 'Unusual nighttime activity' });
+    return anomalies;
+  }
+}
+
+const detector = new AnomalyDetector();
+
+class IoTSimulator {
+  start() {
+    setInterval(() => {
+      patients.forEach(patient => {
+        const anomalyChance = Math.random();
+        const data = {
+          patientId: patient.id,
+          heartRate: anomalyChance < 0.1 ? (Math.random() > 0.5 ? 110 : 45) : 70 + Math.random() * 10,
+          temperature: anomalyChance < 0.05 ? 38 + Math.random() : 36.5 + Math.random() * 0.5,
+          movement: Math.round(Math.random() * 100),
+          timestamp: new Date()
+        };
+        
+        sensorData.push(data);
+        if (sensorData.length > 300) sensorData = sensorData.slice(-300);
+        
+        const anomalies = detector.detect(data);
+        if (anomalies.length > 0) {
+          anomalies.forEach(anomaly => {
+            alerts.unshift({
+              id: Date.now() + Math.random(),
+              patientId: patient.id,
+              patientName: patient.name,
+              room: patient.room,
+              ...anomaly,
+              timestamp: new Date(),
+              acknowledged: false
+            });
+            const idx = patients.findIndex(p => p.id === patient.id);
+            if (idx !== -1) patients[idx].status = anomaly.severity === 'high' ? 'critical' : 'warning';
+          });
+          if (alerts.length > 50) alerts = alerts.slice(0, 50);
+        }
+        
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type: 'sensor_data', data }));
+            if (anomalies.length > 0) client.send(JSON.stringify({ type: 'alert', alerts: alerts.filter(a => !a.acknowledged).slice(0, 10) }));
+          }
+        });
+      });
+    }, 3000);
+  }
+}
+
+const simulator = new IoTSimulator();
+
+wss.on('connection', (ws) => {
+  ws.send(JSON.stringify({ type: 'init', patients, alerts: alerts.filter(a => !a.acknowledged).slice(0, 10) }));
+});
+
+app.get('/api/patients', (req, res) => res.json(patients));
+app.post('/api/alerts/:id/acknowledge', (req, res) => {
+  const alert = alerts.find(a => a.id === parseFloat(req.params.id));
+  if (alert) {
+    alert.acknowledged = true;
+    const patientAlerts = alerts.filter(a => a.patientId === alert.patientId && !a.acknowledged);
+    if (patientAlerts.length === 0) {
+      const idx = patients.findIndex(p => p.id === alert.patientId);
+      if (idx !== -1) patients[idx].status = 'normal';
+    }
+    res.json({ success: true });
+  } else res.status(404).json({ error: 'Alert not found' });
+});
+
+simulator.start();
+server.listen(3000, () => console.log('Server running on port 3000'));</code></pre>
+
+      <div class="file-header">📄 public/index.html</div>
+      <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Dementia Patient Monitoring&lt;/title&gt;
+  &lt;link rel="stylesheet" href="styles.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="container"&gt;
+    &lt;header&gt;
+      &lt;h1&gt;🏥 AI Dementia Patient Monitoring&lt;/h1&gt;
+      &lt;span class="status" id="status"&gt;● Connected&lt;/span&gt;
+    &lt;/header&gt;
+    &lt;div class="dashboard"&gt;
+      &lt;section class="alerts"&gt;
+        &lt;h2&gt;🚨 Active Alerts&lt;/h2&gt;
+        &lt;div id="alerts"&gt;&lt;p class="no-data"&gt;No alerts&lt;/p&gt;&lt;/div&gt;
+      &lt;/section&gt;
+      &lt;section class="patients"&gt;
+        &lt;h2&gt;👥 Patients&lt;/h2&gt;
+        &lt;div id="patients"&gt;&lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;script src="app.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+      <div class="file-header">📄 public/styles.css</div>
+      <pre><code>* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 1400px; margin: 0 auto; }
+header { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+header h1 { color: #333; font-size: 28px; }
+.status { color: #10b981; font-weight: bold; }
+.dashboard { display: grid; grid-template-columns: 1fr 2fr; gap: 25px; }
+section { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+h2 { color: #333; margin-bottom: 20px; font-size: 22px; }
+.alerts { max-height: 600px; overflow-y: auto; }
+#alerts, #patients { display: flex; flex-direction: column; gap: 15px; }
+.alert { padding: 15px; border-radius: 10px; border-left: 4px solid; }
+.alert.high { background: #fee2e2; border-color: #ef4444; }
+.alert.medium { background: #fef3c7; border-color: #f59e0b; }
+.alert-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.alert-patient { font-weight: bold; color: #333; }
+.alert-time { font-size: 12px; color: #666; }
+.alert-message { color: #555; font-size: 14px; margin-bottom: 10px; }
+.btn { padding: 6px 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; background: #10b981; color: white; }
+.btn:hover { opacity: 0.8; }
+#patients { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.patient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; transition: transform 0.2s; }
+.patient:hover { transform: translateY(-5px); }
+.patient.warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.patient.critical { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+.patient-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+.patient-name { font-size: 20px; font-weight: bold; }
+.patient-status { padding: 4px 10px; border-radius: 20px; font-size: 12px; background: rgba(255,255,255,0.3); }
+.patient-info { margin-bottom: 15px; font-size: 14px; opacity: 0.9; }
+.vitals { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.vital { background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; }
+.vital-label { display: block; font-size: 12px; opacity: 0.8; margin-bottom: 5px; }
+.vital-value { display: block; font-size: 18px; font-weight: bold; }
+.no-data { text-align: center; color: #999; padding: 20px; }
+@media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }</code></pre>
+
+      <div class="file-header">📄 public/app.js</div>
+      <pre><code>let ws;
+let patients = [];
+let currentData = {};
+
+function init() {
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${protocol}//${location.host}`);
+  
+  ws.onopen = () => document.getElementById('status').textContent = '● Connected';
+  ws.onclose = () => { document.getElementById('status').textContent = '● Disconnected'; setTimeout(init, 3000); };
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'init') { patients = msg.patients; renderPatients(); renderAlerts(msg.alerts); }
+    if (msg.type === 'sensor_data') { updateData(msg.data); }
+    if (msg.type === 'alert') renderAlerts(msg.alerts);
+  };
+}
+
+function updateData(data) {
+  if (!currentData[data.patientId]) currentData[data.patientId] = [];
+  currentData[data.patientId].push(data);
+  if (currentData[data.patientId].length > 20) currentData[data.patientId].shift();
+  renderPatients();
+}
+
+function renderPatients() {
+  const grid = document.getElementById('patients');
+  grid.innerHTML = '';
+  patients.forEach(p => {
+    const latest = currentData[p.id]?.slice(-1)[0];
+    const card = document.createElement('div');
+    card.className = `patient ${p.status}`;
+    card.innerHTML = `
+      &lt;div class="patient-header"&gt;
+        &lt;span class="patient-name"&gt;${p.name}&lt;/span&gt;
+        &lt;span class="patient-status"&gt;${p.status.toUpperCase()}&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class="patient-info"&gt;Age: ${p.age} | Room: ${p.room}&lt;/div&gt;
+      ${latest ? `
+        &lt;div class="vitals"&gt;
+          &lt;div class="vital"&gt;&lt;span class="vital-label"&gt;Heart Rate&lt;/span&gt;&lt;span class="vital-value"&gt;${latest.heartRate.toFixed(1)} bpm&lt;/span&gt;&lt;/div&gt;
+          &lt;div class="vital"&gt;&lt;span class="vital-label"&gt;Temperature&lt;/span&gt;&lt;span class="vital-value"&gt;${latest.temperature.toFixed(1)}°C&lt;/span&gt;&lt;/div&gt;
+          &lt;div class="vital"&gt;&lt;span class="vital-label"&gt;Movement&lt;/span&gt;&lt;span class="vital-value"&gt;${latest.movement}%&lt;/span&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      ` : '&lt;p class="no-data"&gt;Waiting...&lt;/p&gt;'}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderAlerts(alerts) {
+  const list = document.getElementById('alerts');
+  if (!alerts || alerts.length === 0) { list.innerHTML = '&lt;p class="no-data"&gt;No alerts&lt;/p&gt;'; return; }
+  list.innerHTML = '';
+  alerts.forEach(a => {
+    const div = document.createElement('div');
+    div.className = `alert ${a.severity}`;
+    div.innerHTML = `
+      &lt;div class="alert-header"&gt;
+        &lt;span class="alert-patient"&gt;${a.patientName} - Room ${a.room}&lt;/span&gt;
+        &lt;span class="alert-time"&gt;${new Date(a.timestamp).toLocaleTimeString()}&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class="alert-message"&gt;${a.message}&lt;/div&gt;
+      &lt;button class="btn" onclick="ack(${a.id})"&gt;Acknowledge&lt;/button&gt;
+    `;
+    list.appendChild(div);
+  });
+}
+
+function ack(id) {
+  fetch(`/api/alerts/${id}/acknowledge`, { method: 'POST' });
+}
+
+window.onload = init;</code></pre>
+    </div>
+
+    <div class="code-section">
+      <h2>🎯 Anomaly Detection Rules</h2>
+      <ul>
+        <li><strong>Heart Rate:</strong> Normal range 50-100 bpm. Alerts trigger for values outside this range.</li>
+        <li><strong>Temperature:</strong> Normal range up to 37.5°C. Fever alert triggers above this.</li>
+        <li><strong>Night Wandering:</strong> Movement >80% after 10 PM triggers high severity alert.</li>
+        <li><strong>Sleep Quality:</strong> Quality score <40% triggers medium severity alert.</li>
+      </ul>
+    </div>
+
+    <div class="code-section">
+      <h2>🛠️ Technology Stack</h2>
+      <ul>
+        <li><strong>Backend:</strong> Node.js + Express</li>
+        <li><strong>Real-time Communication:</strong> WebSocket (ws library)</li>
+        <li><strong>Frontend:</strong> Vanilla JavaScript, HTML5, CSS3</li>
+        <li><strong>Architecture:</strong> REST API + WebSocket for real-time updates</li>
+      </ul>
+    </div>
+
+    <footer style="text-align: center; padding: 40px 0; color: white;">
+      <p>Built with ❤️ for better dementia patient care</p>
+    </footer>
+  </div>
+</body>
+</html>
